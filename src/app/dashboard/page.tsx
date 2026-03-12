@@ -71,11 +71,15 @@ function findTopDimension(radar: CapabilityRadar): string {
 /** 将 ISO 时间字符串转为相对时间描述 */
 function formatRelativeTime(dateString: string): string {
   const diffMs = Date.now() - new Date(dateString).getTime()
-  const hours = Math.floor(diffMs / 3600000)
-  if (hours < 1) return '刚刚'
+  const minutes = Math.floor(diffMs / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  const hours = Math.floor(minutes / 60)
   if (hours < 24) return `${hours}小时前`
   const days = Math.floor(hours / 24)
-  return `${days}天前`
+  if (days < 30) return `${days}天前`
+  const months = Math.floor(days / 30)
+  return `${months}个月前`
 }
 
 /** 将学习路径转换为目标进度格式 */

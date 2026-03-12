@@ -190,9 +190,9 @@ export const learningPathApi = {
 
 export const knowledgeApi = {
   /**
-   * 获取文章列表
+   * 获取文章列表（支持 sort: views | likes | newest）
    */
-  getList: (params?: ArticlesFilter & { page?: number; pageSize?: number }) => 
+  getList: (params?: ArticlesFilter & { page?: number; pageSize?: number; sort?: string }) => 
     get<PaginatedResponse<KnowledgeArticle>>('/knowledge', params),
 
   /**
@@ -206,6 +206,24 @@ export const knowledgeApi = {
    */
   getCategories: () => 
     get<KnowledgeCategory[]>('/knowledge/categories'),
+
+  /**
+   * 切换收藏状态
+   */
+  toggleFavorite: (articleId: string) =>
+    post<{ favorited: boolean }>(`/knowledge/${articleId}/favorite`, {}),
+
+  /**
+   * 查询是否已收藏
+   */
+  getFavoriteStatus: (articleId: string) =>
+    get<{ favorited: boolean }>(`/knowledge/${articleId}/favorite`),
+
+  /**
+   * 获取个人收藏列表
+   */
+  getFavorites: (params?: { page?: number; pageSize?: number }) =>
+    get<PaginatedResponse<KnowledgeArticle>>('/knowledge/favorites', params),
 }
 
 // ============================================

@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category')
     const difficulty = searchParams.get('difficulty')
     const search = searchParams.get('search')
+    const sort = searchParams.get('sort') // views | likes | newest (default)
 
     const where: Record<string, unknown> = {}
 
@@ -27,12 +28,17 @@ export async function GET(request: NextRequest) {
       ]
     }
 
+    // 排序：浏览量 / 收藏量 / 最新（默认）
+    let orderBy: Record<string, string> = { createdAt: 'desc' }
+    if (sort === 'views') orderBy = { views: 'desc' }
+    else if (sort === 'likes') orderBy = { likes: 'desc' }
+
     const [articles, total] = await Promise.all([
       prisma.knowledgeArticle.findMany({
         where,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
       }),
       prisma.knowledgeArticle.count({ where }),
     ])

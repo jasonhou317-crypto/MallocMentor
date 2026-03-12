@@ -72,6 +72,7 @@ model User {
   submissions        CodeSubmission[]
   activityLogs       ActivityLog[]
   learningProgress   UserLearningProgress[]
+  favorites          UserFavorite[]
 }
 
 // 能力雷达图模型 - 6维能力评估
@@ -201,6 +202,21 @@ model KnowledgeArticle {
   updatedAt   DateTime @updatedAt
 
   learningProgress UserLearningProgress[]
+  favorites        UserFavorite[]
+}
+
+// 用户收藏
+model UserFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  articleId String
+  article   KnowledgeArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId])
+  @@index([userId])
 }
 
 // 知识库分类

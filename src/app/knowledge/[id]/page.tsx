@@ -13,6 +13,7 @@ import {
   Eye,
   Loader2,
   CheckCircle2,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -30,13 +31,20 @@ export default function KnowledgeArticlePage() {
     (KnowledgeArticle & { content?: string }) | null
   >(null);
   const [loading, setLoading] = useState(true);
+  const [favorited, setFavorited] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await knowledgeApi.getById(id);
-        if (res.success && res.data) {
-          setArticle(res.data);
+        const [articleRes, favRes] = await Promise.all([
+          knowledgeApi.getById(id),
+          knowledgeApi.getFavoriteStatus(id),
+        ]);
+        if (articleRes.success && articleRes.data) {
+          setArticle(articleRes.data);
+        }
+        if (favRes.success && favRes.data) {
+          setFavorited((favRes.data as unknown as { favorited: boolean }).favorited);
         }
       } catch (err) {
         console.error("Load article error:", err);
@@ -46,6 +54,24 @@ export default function KnowledgeArticlePage() {
     }
     load();
   }, [id]);
+
+  const handleToggleFavorite = async () => {
+    try {
+      const res = await knowledgeApi.toggleFavorite(id);
+      if (res.success && res.data) {
+        const { favorited: newState } = res.data as unknown as { favorited: boolean };
+        setFavorited(newState);
+        if (article) {
+          setArticle({
+            ...article,
+            likes: article.likes + (newState ? 1 : -1),
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Toggle favorite error:", err);
+    }
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -118,22 +144,33 @@ export default function KnowledgeArticlePage() {
                       ))}
                   </div>
                   <CardTitle className="text-2xl">{article.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="h-4 w-4" />
-                      {article.author}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Eye className="h-4 w-4" />
-                      {article.views} 次浏览
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />约{" "}
-                      {"estimatedTime" in article
-                        ? String(article.estimatedTime)
-                        : "15"}{" "}
-                      分钟
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <BookOpen className="h-4 w-4" />
+                        {article.author}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        {article.views} 次浏览
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />约{" "}
+                        {"estimatedTime" in article
+                          ? String(article.estimatedTime)
+                          : "15"}{" "}
+                        分钟
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleToggleFavorite}
+                      className={favorited ? "text-yellow-500 border-yellow-300 hover:text-yellow-600" : ""}
+                    >
+                      <Star className="h-4 w-4 mr-1" fill={favorited ? "currentColor" : "none"} />
+                      {favorited ? "已收藏" : "收藏"} ({article.likes})
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -142,6 +179,19 @@ export default function KnowledgeArticlePage() {
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeHighlight]}
+                    components={{
+                      // 确保所有 pre 代码块都有统一深色背景（即使无语言标记）
+                      pre({ children, ...props }) {
+                        return (
+                          <pre
+                            {...props}
+                            className="bg-[#0d1117]! text-[#e6edf3]! rounded-lg overflow-x-auto p-4"
+                          >
+                            {children}
+                          </pre>
+                        );
+                      },
+                    }}
                   >
                     {article.content ||
                       `# ${article.title}\n\n内容正在编写中...`}
@@ -174,6 +224,10 @@ export default function KnowledgeArticlePage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">浏览量</span>
                   <span className="font-medium">{article.views}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">收藏数</span>
+                  <span className="font-medium">{article.likes}</span>
                 </div>
               </CardContent>
             </Card>
