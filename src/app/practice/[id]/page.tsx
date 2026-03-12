@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   Info,
   AlertCircle,
+  Terminal,
+  Copy,
 } from 'lucide-react'
 import Link from 'next/link'
 import { problemApi, codeApi } from '@/lib/api'
@@ -92,6 +94,7 @@ export default function ProblemDetailPage() {
   const [loading, setLoading] = useState(true)
   const [language, setLanguage] = useState<Language>('cpp')
   const [code, setCode] = useState(templates.cpp)
+  const [stdinInput, setStdinInput] = useState('')
   const [isRunning, setIsRunning] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [runResult, setRunResult] = useState<string | null>(null)
@@ -123,15 +126,42 @@ export default function ProblemDetailPage() {
     setIsRunning(true)
     setRunResult(null)
     try {
-      const res = await codeApi.run({ code, language })
+      const res = await codeApi.run({ code, language, input: stdinInput || undefined })
       if (res.success && res.data) {
-        setRunResult(res.data.output)
+        const data = res.data as unknown as {
+          output: string; compiled?: boolean; exitCode?: number; executionTime?: number
+        }
+        let display = data.output
+        if (data.compiled && data.executionTime != null) {
+          display += `\n\n--- 退出码: ${data.exitCode ?? 0} | 耗时: ${data.executionTime}ms ---`
+        }
+        setRunResult(display)
+      } else {
+        const errData = res as unknown as { message?: string }
+        setRunResult(errData.message || '运行失败，请稍后重试')
       }
     } catch {
       setRunResult('运行失败，请稍后重试')
     } finally {
       setIsRunning(false)
     }
+  }
+
+  /** 从测试用例 input 字段提取纯数据作为 stdin */
+  const extractStdinFromTestCase = (tcInput: string): string => {
+    // 测试用例格式如 "nums = [2,7,11,15], target = 9" 或 "5 1 2 3 4 5"
+    // 如果是 "key = value" 格式，提取 value 部分并用换行连接
+    const parts = tcInput.split(',').map(s => s.trim())
+    const values: string[] = []
+    for (const part of parts) {
+      const eqIdx = part.indexOf('=')
+      if (eqIdx !== -1) {
+        values.push(part.slice(eqIdx + 1).trim())
+      } else {
+        values.push(part)
+      }
+    }
+    return values.join('\n')
   }
 
   const handleSubmit = async () => {
@@ -141,7 +171,7 @@ export default function ProblemDetailPage() {
     try {
       const res = await codeApi.submit({ problemId: problem.id, code, language })
       if (res.success && res.data) {
-        const data = res.data as unknown as { aiReview?: string; status?: string }
+        const data = res.data as unknown as { aiReview?: string; status?: string; overallScore?: number }
         setReviewRaw(data.aiReview || `提交状态：${data.status}`)
       }
     } catch {
@@ -306,6 +336,43 @@ export default function ProblemDetailPage() {
               </CardContent>
             </Card>
 
+            {/* stdin 输入区 */}
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Terminal className="h-4 w-4" />
+                    标准输入 (stdin)
+                  </CardTitle>
+                  {problem.testCases.length > 0 && (
+                    <div className="flex gap-1">
+                      {problem.testCases.map((tc, i) => (
+                        <Button
+                          key={i}
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={() => setStdinInput(extractStdinFromTestCase(tc.input))}
+                          title={`填入测试用例 ${i + 1} 的输入`}
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          用例 {i + 1}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <textarea
+                  value={stdinInput}
+                  onChange={(e) => setStdinInput(e.target.value)}
+                  placeholder="程序运行时需要读取的输入数据（如 scanf 读取的内容）&#10;点击右上角「用例」按钮可一键填入测试数据"
+                  className="w-full h-20 p-2 text-sm font-mono bg-gray-50 dark:bg-gray-900 border rounded-lg resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </CardContent>
+            </Card>
+
             <div className="flex gap-2">
               <Button onClick={handleRun} disabled={isRunning} variant="outline" className="flex-1">
                 {isRunning ? (
@@ -323,13 +390,13 @@ export default function ProblemDetailPage() {
               </Button>
             </div>
 
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
               <CardContent className="pt-4">
                 <div className="flex gap-3">
                   <Lightbulb className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium text-blue-900 mb-1">AI 代码审查</p>
-                    <p className="text-blue-700">
+                    <p className="font-medium text-blue-900 dark:text-blue-200 mb-1">AI 代码审查</p>
+                    <p className="text-blue-700 dark:text-blue-400">
                       提交后，AI 审查员会分析你的代码质量、内存安全性和算法效率，并给出专业建议。
                     </p>
                   </div>

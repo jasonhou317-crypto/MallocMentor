@@ -70,6 +70,12 @@ export const problemApi = {
    */
   getById: (id: string) => 
     get<Problem>(`/problems/${id}`),
+
+  /**
+   * AI 自动出题
+   */
+  generate: (data: { category?: string; difficulty?: string; count?: number }) =>
+    post<{ count: number; problems: string[] }>('/problems/generate', data),
 }
 
 // ============================================
@@ -88,6 +94,12 @@ export const codeApi = {
    */
   submit: (data: SubmitCodeRequest) => 
     post<CodeSubmission>('/code/submit', data),
+
+  /**
+   * 获取当前用户每道题的做题状态
+   */
+  getSubmissionStatus: () =>
+    get<Record<string, 'passed' | 'failed'>>('/code/submission-status'),
 }
 
 // ============================================
