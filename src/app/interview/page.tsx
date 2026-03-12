@@ -1,11 +1,17 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { AppLayout } from '@/components/layout/app-layout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AppLayout } from "@/components/layout/app-layout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   MessageSquare,
   Clock,
@@ -13,18 +19,22 @@ import {
   Play,
   Plus,
   Loader2,
-} from 'lucide-react'
-import Link from 'next/link'
-import { interviewApi } from '@/lib/api'
-import type { InterviewSession, InterviewTemplate, InterviewStats } from '@/types/api'
+} from "lucide-react";
+import Link from "next/link";
+import { interviewApi } from "@/lib/api";
+import type {
+  InterviewSession,
+  InterviewTemplate,
+  InterviewStats,
+} from "@/types/api";
 
 export default function InterviewPage() {
-  const router = useRouter()
-  const [sessions, setSessions] = useState<InterviewSession[]>([])
-  const [templates, setTemplates] = useState<InterviewTemplate[]>([])
-  const [stats, setStats] = useState<InterviewStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [creating, setCreating] = useState<string | null>(null) // templateId being created
+  const router = useRouter();
+  const [sessions, setSessions] = useState<InterviewSession[]>([]);
+  const [templates, setTemplates] = useState<InterviewTemplate[]>([]);
+  const [stats, setStats] = useState<InterviewStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState<string | null>(null); // templateId being created
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,56 +43,62 @@ export default function InterviewPage() {
           interviewApi.getList(),
           interviewApi.getTemplates(),
           interviewApi.getStats(),
-        ])
-        if (sessionsRes.success && sessionsRes.data) setSessions(sessionsRes.data)
-        if (templatesRes.success && templatesRes.data) setTemplates(templatesRes.data)
-        if (statsRes.success && statsRes.data) setStats(statsRes.data)
+        ]);
+        if (sessionsRes.success && sessionsRes.data)
+          setSessions(sessionsRes.data);
+        if (templatesRes.success && templatesRes.data)
+          setTemplates(templatesRes.data);
+        if (statsRes.success && statsRes.data) setStats(statsRes.data);
       } catch (err) {
-        console.error('Interview page fetch error:', err)
+        console.error("Interview page fetch error:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchData()
-  }, [])
+    };
+    fetchData();
+  }, []);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy':   return 'bg-green-100 text-green-800'
-      case 'Medium': return 'bg-yellow-100 text-yellow-800'
-      case 'Hard':   return 'bg-red-100 text-red-800'
-      default:       return 'bg-gray-100 text-gray-800'
+      case "Easy":
+        return "bg-green-100 text-green-800";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "Hard":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toISOString().slice(0, 10)
+    new Date(dateString).toISOString().slice(0, 10);
 
   // 通过模板创建新面试并跳转
   const handleStartInterview = async (template: InterviewTemplate) => {
-    if (creating) return
-    setCreating(template.id)
+    if (creating) return;
+    setCreating(template.id);
     try {
       const res = await interviewApi.create({
         title: template.title,
         type: template.type,
         templateId: template.id,
-      })
+      });
       if (res.success && res.data) {
-        router.push(`/interview/${res.data.id}`)
+        router.push(`/interview/${res.data.id}`);
       }
     } catch (err) {
-      console.error('Create interview error:', err)
+      console.error("Create interview error:", err);
     } finally {
-      setCreating(null)
+      setCreating(null);
     }
-  }
+  };
 
   // 快速开始（使用第一个模板）
   const handleQuickStart = async () => {
-    if (creating || templates.length === 0) return
-    await handleStartInterview(templates[0])
-  }
+    if (creating || templates.length === 0) return;
+    await handleStartInterview(templates[0]);
+  };
 
   return (
     <AppLayout>
@@ -91,7 +107,9 @@ export default function InterviewPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">模拟面试</h1>
-            <p className="text-gray-500 mt-1">与 AI 面试官进行真实的技术面试模拟</p>
+            <p className="text-gray-500 mt-1">
+              与 AI 面试官进行真实的技术面试模拟
+            </p>
           </div>
           <Button onClick={handleQuickStart} disabled={!!creating || loading}>
             {creating ? (
@@ -107,14 +125,18 @@ export default function InterviewPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">完成面试</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500">
+                完成面试
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="h-8 w-20 bg-gray-100 rounded animate-pulse" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">{stats?.completedCount ?? 0} 次</div>
+                  <div className="text-2xl font-bold">
+                    {stats?.completedCount ?? 0} 次
+                  </div>
                   <p className="text-xs text-gray-500 mt-1">
                     累计时长 {stats?.totalDurationHours ?? 0} 小时
                   </p>
@@ -125,7 +147,9 @@ export default function InterviewPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">平均分数</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500">
+                平均分数
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -133,11 +157,15 @@ export default function InterviewPage() {
               ) : (
                 <>
                   <div className="flex items-baseline gap-2">
-                    <div className="text-2xl font-bold">{stats?.averageScore ?? '--'}</div>
+                    <div className="text-2xl font-bold">
+                      {stats?.averageScore ?? "--"}
+                    </div>
                     {stats && stats.scoreTrend > 0 && (
                       <>
                         <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-sm text-green-600">+{stats.scoreTrend}</span>
+                        <span className="text-sm text-green-600">
+                          +{stats.scoreTrend}
+                        </span>
                       </>
                     )}
                   </div>
@@ -149,16 +177,20 @@ export default function InterviewPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-500">强项领域</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500">
+                强项领域
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="h-8 w-20 bg-gray-100 rounded animate-pulse" />
               ) : (
                 <>
-                  <div className="text-2xl font-bold">{stats?.topDomain ?? '--'}</div>
+                  <div className="text-2xl font-bold">
+                    {stats?.topDomain ?? "--"}
+                  </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    平均得分 {stats?.topDomainScore ?? '--'} 分
+                    平均得分 {stats?.topDomainScore ?? "--"} 分
                   </p>
                 </>
               )}
@@ -171,7 +203,7 @@ export default function InterviewPage() {
           <h2 className="text-xl font-semibold mb-4">面试模板</h2>
           {loading ? (
             <div className="grid gap-4 md:grid-cols-2">
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i) => (
                 <Card key={i}>
                   <CardHeader>
                     <div className="h-5 bg-gray-100 rounded animate-pulse w-1/2 mb-2" />
@@ -186,14 +218,22 @@ export default function InterviewPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
               {templates.map((template) => (
-                <Card key={template.id} className="hover:shadow-md transition-shadow">
+                <Card
+                  key={template.id}
+                  className="hover:shadow-md transition-shadow"
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="space-y-2">
                         <CardTitle>{template.title}</CardTitle>
-                        <CardDescription>{template.description}</CardDescription>
+                        <CardDescription>
+                          {template.description}
+                        </CardDescription>
                       </div>
-                      <Badge className={getDifficultyColor(template.difficulty)} variant="outline">
+                      <Badge
+                        className={getDifficultyColor(template.difficulty)}
+                        variant="outline"
+                      >
                         {template.difficulty}
                       </Badge>
                     </div>
@@ -207,7 +247,11 @@ export default function InterviewPage() {
 
                       <div className="flex flex-wrap gap-1">
                         {template.topics.map((topic) => (
-                          <Badge key={topic} variant="secondary" className="text-xs">
+                          <Badge
+                            key={topic}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {topic}
                           </Badge>
                         ))}
@@ -242,8 +286,11 @@ export default function InterviewPage() {
           <CardContent>
             {loading ? (
               <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="flex items-center gap-4 p-4 rounded-lg border">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-4 p-4 rounded-lg border"
+                  >
                     <div className="h-11 w-11 bg-gray-100 rounded-lg animate-pulse" />
                     <div className="flex-1 space-y-2">
                       <div className="h-4 bg-gray-100 rounded animate-pulse w-1/2" />
@@ -253,25 +300,42 @@ export default function InterviewPage() {
                 ))}
               </div>
             ) : sessions.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">暂无面试记录，选择模板开始你的第一次面试吧！</p>
+              <p className="text-center text-gray-500 py-8">
+                暂无面试记录，选择模板开始你的第一次面试吧！
+              </p>
             ) : (
               <div className="space-y-3">
                 {sessions.map((session) => (
-                  <Link key={session.id} href={`/interview/${session.id}`}>
+                  <Link
+                    className="block"
+                    key={session.id}
+                    href={`/interview/${session.id}`}
+                  >
                     <div className="flex items-center gap-4 p-4 rounded-lg border hover:border-blue-500 hover:bg-blue-50/50 transition-all cursor-pointer">
-                      <div className={`p-3 rounded-lg ${
-                        session.type === 'technical' ? 'bg-purple-100' : 'bg-blue-100'
-                      }`}>
-                        <MessageSquare className={`h-5 w-5 ${
-                          session.type === 'technical' ? 'text-purple-600' : 'text-blue-600'
-                        }`} />
+                      <div
+                        className={`p-3 rounded-lg ${
+                          session.type === "technical"
+                            ? "bg-purple-100"
+                            : "bg-blue-100"
+                        }`}
+                      >
+                        <MessageSquare
+                          className={`h-5 w-5 ${
+                            session.type === "technical"
+                              ? "text-purple-600"
+                              : "text-blue-600"
+                          }`}
+                        />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <h3 className="font-medium">{session.title}</h3>
-                          {session.status === 'active' && (
-                            <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
+                          {session.status === "active" && (
+                            <Badge
+                              variant="outline"
+                              className="bg-yellow-50 text-yellow-700"
+                            >
                               进行中
                             </Badge>
                           )}
@@ -300,5 +364,5 @@ export default function InterviewPage() {
         </Card>
       </div>
     </AppLayout>
-  )
+  );
 }
