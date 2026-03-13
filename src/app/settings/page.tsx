@@ -1,19 +1,24 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useEffect, useRef, useTransition } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Camera, Loader2 } from "lucide-react";
+import { User, Lock, Camera, Loader2, Trophy, CheckCircle2, Lock as LockIcon } from "lucide-react";
 import { toast } from "sonner";
+import { achievementApi } from "@/lib/api";
+import type { Achievement } from "@/types/api";
 
 export default function SettingsPage() {
   const { data: session, update } = useSession();
   const user = session?.user;
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") ?? "profile";
 
   return (
     <AppLayout>
@@ -23,7 +28,7 @@ export default function SettingsPage() {
           <p className="mt-1 text-sm text-gray-500">管理你的账号信息与安全设置</p>
         </div>
 
-        <Tabs defaultValue="profile">
+        <Tabs defaultValue={defaultTab}>
           <TabsList className="w-full">
             <TabsTrigger value="profile" className="flex-1 gap-1.5">
               <User className="h-4 w-4" />
@@ -33,6 +38,10 @@ export default function SettingsPage() {
               <Lock className="h-4 w-4" />
               账号安全
             </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex-1 gap-1.5">
+              <Trophy className="h-4 w-4" />
+              我的成就
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -41,6 +50,10 @@ export default function SettingsPage() {
 
           <TabsContent value="security">
             <SecurityTab />
+          </TabsContent>
+
+          <TabsContent value="achievements">
+            <AchievementsTab />
           </TabsContent>
         </Tabs>
       </div>
@@ -315,6 +328,97 @@ function SecurityTab() {
             修改密码
           </Button>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ==================== 我的成就 Tab ====================
+
+const CATEGORY_LABELS: Record<string, string> = {
+  practice: "代码练习",
+  interview: "模拟面试",
+  learning: "学习成长",
+  streak: "坚持不懈",
+};
+
+const CATEGORY_ORDER = ["practice", "interview", "learning", "streak"];
+
+function AchievementsTab() {
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [stats, setStats] = useState({ total: 0, unlocked: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    achievementApi.getList().then(res => {
+      if (res.success && res.data) {
+        setAchievements(res.data.achievements);
+        setStats({ total: res.data.total, unlocked: res.data.unlocked });
+      }
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  const grouped = CATEGORY_ORDER.map(cat => ({
+    category: cat,
+    label: CATEGORY_LABELS[cat] ?? cat,
+    items: achievements.filter(a => a.category === cat),
+  })).filter(g => g.items.length > 0);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>我的成就</CardTitle>
+        <CardDescription>
+          {loading ? "加载中..." : `已解锁 ${stats.unlocked}/${stats.total} 个成就`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {loading ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="h-24 bg-gray-50 rounded-lg animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          grouped.map(group => (
+            <div key={group.category}>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">{group.label}</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {group.items.map(achievement => (
+                  <div
+                    key={achievement.key}
+                    className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
+                      achievement.unlocked
+                        ? "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800"
+                        : "bg-gray-50 border-gray-200 opacity-50 dark:bg-muted/20 dark:border-border"
+                    }`}
+                  >
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                      achievement.unlocked
+                        ? "bg-amber-100 dark:bg-amber-900/40"
+                        : "bg-gray-100 dark:bg-muted/40"
+                    }`}>
+                      {achievement.unlocked ? (
+                        <CheckCircle2 className="h-4.5 w-4.5 text-amber-600" />
+                      ) : (
+                        <LockIcon className="h-4 w-4 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{achievement.title}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{achievement.description}</p>
+                      {achievement.unlocked && achievement.unlockedAt && (
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          {new Date(achievement.unlockedAt).toLocaleDateString("zh-CN")} 解锁
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </CardContent>
     </Card>
   );

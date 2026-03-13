@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createSuccessResponse, createErrorResponse, getCurrentUserId } from '@/lib/utils/response'
 import { getNextTemplate, buildStepsJson } from '@/lib/learning-path-templates'
+import { checkAndAwardAchievements } from '@/lib/achievements'
 
 // POST /api/learning-paths/[id]/progress - 更新学习进度
 export async function POST(
@@ -98,6 +99,12 @@ export async function POST(
           metadata: JSON.stringify({ pathId: id, stepId, progress, pathCompleted }),
         },
       }).catch(() => {})
+
+      // 检测成就
+      await checkAndAwardAchievements(userId, {
+        type: 'learning_progress',
+        pathCompleted,
+      })
     }
 
     return NextResponse.json(createSuccessResponse({

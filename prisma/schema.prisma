@@ -73,6 +73,7 @@ model User {
   activityLogs       ActivityLog[]
   learningProgress   UserLearningProgress[]
   favorites          UserFavorite[]
+  achievements       UserAchievement[]
 }
 
 // 能力雷达图模型 - 6维能力评估
@@ -245,6 +246,21 @@ model InterviewTemplate {
   isActive      Boolean  @default(true)
 
   createdAt     DateTime @default(now())
+}
+
+// =============================================
+// 成就系统
+// =============================================
+
+model UserAchievement {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementKey String
+  unlockedAt     DateTime @default(now())
+
+  @@unique([userId, achievementKey])
+  @@index([userId])
 }
 
 // =============================================

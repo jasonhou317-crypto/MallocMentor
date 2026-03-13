@@ -469,7 +469,6 @@ export const mockKnowledgeArticles: KnowledgeArticle[] = [
 export const mockUserStats: UserStats = {
   problemsCompleted: 48,
   totalProblems: 156,
-  studyHours: 127,
   passRate: 78,
   achievements: 15,
   streak: 7,

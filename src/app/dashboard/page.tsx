@@ -14,7 +14,7 @@ import {
   TrendingUp,
   Code,
   Trophy,
-  Clock,
+  Flame,
   Target,
   Zap,
   CheckCircle2,
@@ -35,12 +35,14 @@ import {
   capabilityApi,
   activityApi,
   learningPathApi,
+  achievementApi,
 } from "@/lib/api";
 import type {
   UserStats,
   CapabilityRadar,
   ActivityLog,
   LearningPath,
+  Achievement,
 } from "@/types/api";
 
 // 雷达图数据项类型
@@ -61,12 +63,12 @@ const STAT_CONFIG = [
     bgColor: "bg-blue-50",
   },
   {
-    key: "studyHours" as const,
-    label: "学习时长",
-    unit: "h",
-    icon: Clock,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
+    key: "streak" as const,
+    label: "连续学习",
+    unit: "天",
+    icon: Flame,
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
   },
   {
     key: "passRate" as const,
@@ -160,6 +162,8 @@ export default function DashboardPage() {
     topDimension: "",
   });
   const [activities, setActivities] = useState<ActivityLog[]>([]);
+  const [recentAchievements, setRecentAchievements] = useState<Achievement[]>([]);
+  const [achievementStats, setAchievementStats] = useState({ total: 0, unlocked: 0 });
   const [learningGoals, setLearningGoals] = useState<
     ReturnType<typeof toLearningGoal>[]
   >([]);
@@ -168,12 +172,13 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [statsRes, radarRes, activitiesRes, pathsRes] = await Promise.all(
+        const [statsRes, radarRes, activitiesRes, pathsRes, achievementsRes] = await Promise.all(
           [
             userApi.getStats(),
             capabilityApi.get(),
             activityApi.getList({ pageSize: 5 }),
             learningPathApi.getList(),
+            achievementApi.getList(),
           ],
         );
 
@@ -195,6 +200,16 @@ export default function DashboardPage() {
 
         if (pathsRes.success && pathsRes.data) {
           setLearningGoals(pathsRes.data.map(toLearningGoal));
+        }
+
+        if (achievementsRes.success && achievementsRes.data) {
+          const { achievements, total, unlocked } = achievementsRes.data;
+          setRecentAchievements(
+            achievements.filter(a => a.unlocked).sort(
+              (a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime(),
+            ).slice(0, 4),
+          );
+          setAchievementStats({ total, unlocked });
         }
       } catch (err) {
         console.error("Dashboard data fetch error:", err);
@@ -383,6 +398,54 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* 最近成就 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>最近成就</CardTitle>
+                <CardDescription>
+                  {loading ? '加载中...' : `已解锁 ${achievementStats.unlocked}/${achievementStats.total} 个成就`}
+                </CardDescription>
+              </div>
+              <a
+                href="/settings?tab=achievements"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                查看全部 →
+              </a>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-20 bg-gray-50 rounded-lg animate-pulse" />
+                ))}
+              </div>
+            ) : recentAchievements.length === 0 ? (
+              <div className="text-center py-6 text-sm text-gray-500">
+                还没有解锁任何成就，继续加油吧！
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {recentAchievements.map(achievement => (
+                  <div
+                    key={achievement.key}
+                    className="flex flex-col items-center gap-1.5 p-3 rounded-lg border bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-800"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+                      <Trophy className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <span className="text-xs font-medium text-center">{achievement.title}</span>
+                    <span className="text-[10px] text-gray-500">{formatRelativeTime(achievement.unlockedAt!)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* 最近活动 */}
         <Card>

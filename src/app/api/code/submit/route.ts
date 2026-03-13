@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createSuccessResponse, createErrorResponse, getCurrentUserId } from '@/lib/utils/response'
 import { chatNonStream, isCozeConfigured, parseJsonAnswer } from '@/lib/ai/coze'
+import { checkAndAwardAchievements } from '@/lib/achievements'
 import type { SubmitCodeRequest } from '@/types/api'
 
 /**
@@ -95,6 +96,13 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // 检测成就
+    const newAchievements = await checkAndAwardAchievements(userId, {
+      type: 'submission',
+      score: review?.overallScore ?? null,
+      status,
+    })
+
     return NextResponse.json(createSuccessResponse({
       id: submission.id,
       userId: submission.userId,
@@ -105,6 +113,7 @@ export async function POST(request: NextRequest) {
       aiReview: aiReviewText,
       overallScore: review?.overallScore ?? null,
       capabilityScores: review?.capabilityScores ?? null,
+      newAchievements,
       createdAt: submission.createdAt.toISOString(),
     }, '提交成功'))
   } catch (error) {

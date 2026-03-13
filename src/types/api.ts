@@ -270,10 +270,9 @@ export interface KnowledgeCategory {
 export interface UserStats {
   problemsCompleted: number
   totalProblems: number
-  studyHours: number
   passRate: number
   achievements: number
-  streak: number  // 连续学习天数
+  streak: number
   rank?: number
 }
 
@@ -285,4 +284,21 @@ export interface ActivityLog {
   description: string
   metadata?: any
   createdAt: string
+}
+
+// 成就相关类型
+export interface Achievement {
+  key: string
+  title: string
+  description: string
+  icon: string
+  category: 'practice' | 'interview' | 'learning' | 'streak'
+  unlocked: boolean
+  unlockedAt: string | null
+}
+
+export interface AchievementsResponse {
+  achievements: Achievement[]
+  total: number
+  unlocked: number
 }

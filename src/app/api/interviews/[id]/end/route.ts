@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createSuccessResponse, createErrorResponse, getCurrentUserId } from '@/lib/utils/response'
 import { chatNonStream, isCozeConfigured } from '@/lib/ai/coze'
+import { checkAndAwardAchievements } from '@/lib/achievements'
 
 // POST /api/interviews/[id]/end - 结束面试并生成 AI 评估
 export async function POST(
@@ -98,6 +99,9 @@ ${dialogSummary}
         metadata: JSON.stringify({ sessionId: id, score: evaluation.overallScore }),
       },
     })
+
+    // 检测成就
+    await checkAndAwardAchievements(userId, { type: 'interview_end' })
 
     return NextResponse.json(createSuccessResponse({
       id: session.id,

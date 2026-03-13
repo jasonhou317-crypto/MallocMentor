@@ -28,6 +28,7 @@ import type {
   KnowledgeCategory,
   CapabilityRadar,
   ActivityLog,
+  AchievementsResponse,
 } from '@/types/api'
 
 // ============================================
@@ -269,6 +270,18 @@ export const activityApi = {
 }
 
 // ============================================
+// 成就相关
+// ============================================
+
+export const achievementApi = {
+  /**
+   * 获取全量成就列表（含解锁状态）
+   */
+  getList: () =>
+    get<AchievementsResponse>('/achievements'),
+}
+
+// ============================================
 // 统一导出
 // ============================================
 
@@ -282,6 +295,7 @@ const api = {
   knowledge: knowledgeApi,
   capability: capabilityApi,
   activity: activityApi,
+  achievement: achievementApi,
 }
 
 export default api

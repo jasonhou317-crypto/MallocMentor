@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { createSuccessResponse, createErrorResponse, getCurrentUserId } from '@/lib/utils/response'
+import { checkAndAwardAchievements } from '@/lib/achievements'
 
 // GET /api/users/stats - 获取用户统计数据
 export async function GET(request: NextRequest) {
@@ -10,22 +11,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(createErrorResponse('未登录'), { status: 401 })
     }
 
-    const [problemsCompleted, totalProblems, interviewCount, learningPaths, activityDays] = await Promise.all([
-      prisma.codeSubmission.count({ where: { userId, status: 'Passed' } }),
+    const [passedProblems, totalProblems, totalSubmissions, passedSubmissions, activityDays, achievementCount] = await Promise.all([
+      // 按 problemId 去重，统计通过的不同题目数
+      prisma.codeSubmission.findMany({
+        where: { userId, status: 'Passed' },
+        select: { problemId: true },
+        distinct: ['problemId'],
+      }),
       prisma.problem.count(),
-      prisma.interviewSession.count({ where: { userId, status: 'completed' } }),
-      prisma.learningPath.findMany({ where: { userId } }),
-      // 计算连续学习天数：查最近活动日期
+      prisma.codeSubmission.count({ where: { userId } }),
+      prisma.codeSubmission.count({ where: { userId, status: 'Passed' } }),
       prisma.activityLog.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         select: { createdAt: true },
         take: 60,
       }),
+      prisma.userAchievement.count({ where: { userId } }),
     ])
 
-    const totalSubmissions = await prisma.codeSubmission.count({ where: { userId } })
-    const passRate = totalSubmissions > 0 ? Math.round((problemsCompleted / totalSubmissions) * 100) : 0
+    const problemsCompleted = passedProblems.length
+    const passRate = totalSubmissions > 0 ? Math.round((passedSubmissions / totalSubmissions) * 100) : 0
 
     // 计算连续天数
     let streak = 0
@@ -44,15 +50,14 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 估算学习时长：面试数 * 0.75h + 活动记录天数 * 1h
-    const studyHours = Math.round(interviewCount * 0.75 + activityDays.length * 0.5)
+    // 顺带检测 streak / 阅读量相关成就（不阻塞返回）
+    checkAndAwardAchievements(userId, { type: 'stats', streak }).catch(() => {})
 
     return NextResponse.json(createSuccessResponse({
       problemsCompleted,
       totalProblems,
-      studyHours,
       passRate,
-      achievements: interviewCount + problemsCompleted,
+      achievements: achievementCount,
       streak,
     }))
   } catch (error) {
