@@ -62,7 +62,11 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError(mode === "login" ? "邮箱或密码错误" : "注册成功但自动登录失败，请手动登录");
+        setError(
+          mode === "login"
+            ? "邮箱或密码错误"
+            : "注册成功但自动登录失败，请手动登录",
+        );
         setLoading(false);
         return;
       }
@@ -96,7 +100,7 @@ export default function LoginPage() {
           </p>
           <div className="mt-12 grid grid-cols-3 gap-6 text-sm text-blue-100">
             <div>
-              <div className="mb-1 text-2xl font-bold text-white">500+</div>
+              <div className="mb-1 text-2xl font-bold text-white">100+</div>
               练习题目
             </div>
             <div>
