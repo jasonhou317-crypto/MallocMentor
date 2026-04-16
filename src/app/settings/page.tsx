@@ -1,20 +1,42 @@
 "use client";
 
-import { useState, useEffect, useRef, useTransition } from "react";
+import { Suspense, useState, useEffect, useRef, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Lock, Camera, Loader2, Trophy, CheckCircle2, Lock as LockIcon } from "lucide-react";
+import {
+  User,
+  Lock,
+  Camera,
+  Loader2,
+  Trophy,
+  CheckCircle2,
+  Lock as LockIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { achievementApi } from "@/lib/api";
 import type { Achievement } from "@/types/api";
 
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={<SettingsPageFallback />}>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
+
+function SettingsPageContent() {
   const { data: session, update } = useSession();
   const user = session?.user;
   const searchParams = useSearchParams();
@@ -25,7 +47,9 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">个人设置</h1>
-          <p className="mt-1 text-sm text-gray-500">管理你的账号信息与安全设置</p>
+          <p className="mt-1 text-sm text-gray-500">
+            管理你的账号信息与安全设置
+          </p>
         </div>
 
         <Tabs defaultValue={defaultTab}>
@@ -56,6 +80,17 @@ export default function SettingsPage() {
             <AchievementsTab />
           </TabsContent>
         </Tabs>
+      </div>
+    </AppLayout>
+  );
+}
+
+function SettingsPageFallback() {
+  return (
+    <AppLayout>
+      <div className="mx-auto max-w-2xl space-y-3">
+        <h1 className="text-2xl font-bold text-gray-900">个人设置</h1>
+        <p className="text-sm text-gray-500">页面加载中...</p>
       </div>
     </AppLayout>
   );
@@ -100,7 +135,10 @@ function ProfileTab({
     formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -160,7 +198,10 @@ function ProfileTab({
         {/* 头像上传区 */}
         <div className="flex items-center gap-5">
           <div className="relative">
-            <Avatar className="h-20 w-20 cursor-pointer" onClick={handleAvatarClick}>
+            <Avatar
+              className="h-20 w-20 cursor-pointer"
+              onClick={handleAvatarClick}
+            >
               <AvatarImage src={avatarUrl} alt={user?.name ?? "用户"} />
               <AvatarFallback className="text-xl">{initials}</AvatarFallback>
             </Avatar>
@@ -186,8 +227,12 @@ function ProfileTab({
             />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">点击头像更换图片</p>
-            <p className="mt-0.5 text-xs text-gray-500">支持 JPG、PNG、WebP，最大 2MB</p>
+            <p className="text-sm font-medium text-gray-900">
+              点击头像更换图片
+            </p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              支持 JPG、PNG、WebP，最大 2MB
+            </p>
           </div>
         </div>
 
@@ -209,7 +254,11 @@ function ProfileTab({
         {/* 邮箱（只读） */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium">邮箱</label>
-          <Input value={user?.email ?? ""} readOnly className="cursor-not-allowed bg-gray-50" />
+          <Input
+            value={user?.email ?? ""}
+            readOnly
+            className="cursor-not-allowed bg-gray-50"
+          />
           <p className="text-xs text-gray-400">邮箱是唯一账号标识，不可修改</p>
         </div>
 
@@ -322,7 +371,12 @@ function SecurityTab() {
         <div className="flex justify-end pt-2">
           <Button
             onClick={handleChangePassword}
-            disabled={pending || !form.currentPassword || !form.newPassword || !form.confirmPassword}
+            disabled={
+              pending ||
+              !form.currentPassword ||
+              !form.newPassword ||
+              !form.confirmPassword
+            }
           >
             {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             修改密码
@@ -350,41 +404,52 @@ function AchievementsTab() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    achievementApi.getList().then(res => {
-      if (res.success && res.data) {
-        setAchievements(res.data.achievements);
-        setStats({ total: res.data.total, unlocked: res.data.unlocked });
-      }
-    }).catch(() => {}).finally(() => setLoading(false));
+    achievementApi
+      .getList()
+      .then((res) => {
+        if (res.success && res.data) {
+          setAchievements(res.data.achievements);
+          setStats({ total: res.data.total, unlocked: res.data.unlocked });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const grouped = CATEGORY_ORDER.map(cat => ({
+  const grouped = CATEGORY_ORDER.map((cat) => ({
     category: cat,
     label: CATEGORY_LABELS[cat] ?? cat,
-    items: achievements.filter(a => a.category === cat),
-  })).filter(g => g.items.length > 0);
+    items: achievements.filter((a) => a.category === cat),
+  })).filter((g) => g.items.length > 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>我的成就</CardTitle>
         <CardDescription>
-          {loading ? "加载中..." : `已解锁 ${stats.unlocked}/${stats.total} 个成就`}
+          {loading
+            ? "加载中..."
+            : `已解锁 ${stats.unlocked}/${stats.total} 个成就`}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {loading ? (
           <div className="grid grid-cols-2 gap-3">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-24 bg-gray-50 rounded-lg animate-pulse" />
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="h-24 bg-gray-50 rounded-lg animate-pulse"
+              />
             ))}
           </div>
         ) : (
-          grouped.map(group => (
+          grouped.map((group) => (
             <div key={group.category}>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">{group.label}</h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                {group.label}
+              </h3>
               <div className="grid grid-cols-2 gap-3">
-                {group.items.map(achievement => (
+                {group.items.map((achievement) => (
                   <div
                     key={achievement.key}
                     className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
@@ -393,11 +458,13 @@ function AchievementsTab() {
                         : "bg-gray-50 border-gray-200 opacity-50 dark:bg-muted/20 dark:border-border"
                     }`}
                   >
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                      achievement.unlocked
-                        ? "bg-amber-100 dark:bg-amber-900/40"
-                        : "bg-gray-100 dark:bg-muted/40"
-                    }`}>
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                        achievement.unlocked
+                          ? "bg-amber-100 dark:bg-amber-900/40"
+                          : "bg-gray-100 dark:bg-muted/40"
+                      }`}
+                    >
                       {achievement.unlocked ? (
                         <CheckCircle2 className="h-4.5 w-4.5 text-amber-600" />
                       ) : (
@@ -405,11 +472,18 @@ function AchievementsTab() {
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{achievement.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{achievement.description}</p>
+                      <p className="text-sm font-medium truncate">
+                        {achievement.title}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {achievement.description}
+                      </p>
                       {achievement.unlocked && achievement.unlockedAt && (
                         <p className="text-[10px] text-gray-400 mt-1">
-                          {new Date(achievement.unlockedAt).toLocaleDateString("zh-CN")} 解锁
+                          {new Date(achievement.unlockedAt).toLocaleDateString(
+                            "zh-CN",
+                          )}{" "}
+                          解锁
                         </p>
                       )}
                     </div>

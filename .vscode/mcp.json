@@ -13,7 +13,7 @@
       "command": "python",
       "args": ["-m", "nanobanana_mcp_server.server"],
       "env": {
-        "GEMINI_API_KEY": "AIzaSyAhlBBeKMGYwF3F_N-5l-u5HKjep3wmFcw"
+        "GEMINI_API_KEY": "${input:gemini-api-key}"
       }
     }
   }
