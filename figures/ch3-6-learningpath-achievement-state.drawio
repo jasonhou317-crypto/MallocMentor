@@ -1,0 +1,130 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="ch3_6_learningpath_achievement_state" name="Page-1">
+    <mxGraphModel dx="2518" dy="1398" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1600" pageHeight="1500" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n1" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="开始" vertex="1">
+          <mxGeometry height="60" width="180" x="690" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="选择模板并创建个人路径" vertex="1">
+          <mxGeometry height="70" width="440" x="560" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="n3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="学习进行中" vertex="1">
+          <mxGeometry height="70" width="300" x="630" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="n4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="请求下一步推荐" vertex="1">
+          <mxGeometry height="70" width="300" x="630" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="n5" parent="1" style="rhombus;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="AI 推荐可用?" vertex="1">
+          <mxGeometry height="120" width="200" x="680" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="n6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="生成个性化建议" vertex="1">
+          <mxGeometry height="70" width="280" x="395" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="n7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="规则回退建议" vertex="1">
+          <mxGeometry height="70" width="280" x="870" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="n8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="完成步骤并更新进度" vertex="1">
+          <mxGeometry height="70" width="340" x="610" y="740" as="geometry" />
+        </mxCell>
+        <mxCell id="n9" parent="1" style="rhombus;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="路径是否完成?" vertex="1">
+          <mxGeometry height="120" width="200" x="680" y="850" as="geometry" />
+        </mxCell>
+        <mxCell id="n10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="触发成就检测" vertex="1">
+          <mxGeometry height="70" width="300" x="630" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="n11" parent="1" style="rhombus;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="满足成就条件?" vertex="1">
+          <mxGeometry height="120" width="200" x="680" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="n12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="发放成就并写入活动日志" vertex="1">
+          <mxGeometry height="70" width="360" x="330" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="n13" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=22;fontFamily=Noto Sans JP;strokeWidth=2;align=center;verticalAlign=middle;" value="结束" vertex="1">
+          <mxGeometry height="60" width="180" x="930" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="n1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n6" value="是">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="535" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="n5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n7" value="否">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1023" y="530" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="n6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="535" y="775" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="n7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n8">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1023" y="775" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="n8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="n9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;dashed=1;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n3" value="否">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="343" y="910" />
+              <mxPoint x="343" y="285" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="n9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n10" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="n10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="n11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n12" value="是">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="510" y="1170" />
+              <mxPoint x="510" y="1295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="n11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n13" value="否">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="1170" />
+              <mxPoint x="1020" y="1290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="n12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;strokeWidth=2;fontSize=22;fontFamily=Noto Sans JP;" target="n13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="1295" />
+              <mxPoint x="1020" y="1295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
